@@ -1,0 +1,6 @@
+---
+en:
+  vagrant:
+    fleet_provisioner:
+      fleet_start_unit: |-
+        Starting fleet unit %{unit}

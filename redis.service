@@ -1,0 +1,10 @@
+[Unit]
+Description=Redis
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill redis
+ExecStartPre=-/usr/bin/docker rm redis
+ExecStartPre=/usr/bin/docker pull dockerfile/redis
+ExecStart=/usr/bin/docker run --rm --name redis dockerfile/redis
+ExecStop=/usr/bin/docker stop redis
