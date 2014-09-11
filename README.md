@@ -1,28 +1,26 @@
-# Vagrant::Fleet
+# Vagrant Fleet Provisioner
 
-TODO: Write a gem description
+Vagrant fleet provisioner for use with a CoreOS guest machine
+
+## Strong Warnings
+
+This is very early work.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Install it as a Vagrant plugin
 
-    gem 'vagrant-fleet'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install vagrant-fleet
+    $ vagrant plugin install vagrant-fleet
 
 ## Usage
 
 TODO: Write usage instructions here
 
+For now, have a look at the [Vagrantfile](Vagrantfile)
+
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/vagrant-fleet/fork )
+1. Fork it ( https://github.com/voidlock/vagrant-fleet/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
