@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.name          = "vagrant-fleet"
   spec.version       = VagrantPlugins::FleetProvisioner::VERSION
   spec.authors       = ["Alex Arnell"]
-  spec.email         = ["alex@heroku.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.email         = ["alex.arnell@gmail.com"]
+  spec.summary       = %q{Vagrant Fleet Provisioner}
+  spec.description   = %q{Vagrant fleet provisioner for use with a CoreOS guest machine}
+  spec.homepage      = "https://github.com/voidlock/vagrant-fleet"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
