@@ -10,7 +10,7 @@ This is very early work.
 
 Install it as a Vagrant plugin
 
-    $ vagrant plugin install vagrant-fleet
+    $ vagrant plugin install vagrant-fleet --plugin-prerelease
 
 ## Usage
 
