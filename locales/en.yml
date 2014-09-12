@@ -1,6 +1,16 @@
 ---
 en:
   vagrant:
-    fleet_provisioner:
-      fleet_start_unit: |-
-        Starting fleet unit %{unit}
+    provisioners:
+      fleet:
+        missing_shared_folders: |-
+          Shared folders that Fleet requires are missing on the virtual machine.
+          This is usually due to configuration changing after already booting the
+          machine. The fix is to run a `vagrant reload` so that the proper shared
+          folders will be prepared and mounted on the VM.
+        unit_folder_not_found_warning: |-
+          The unit path '%{path}' doesn't exist. Ignoring...
+        submit_unit: |-
+          Submitting fleet unit %{unit}
+        start_unit: |-
+          Starting fleet unit %{unit}

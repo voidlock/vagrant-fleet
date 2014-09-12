@@ -1,22 +1,47 @@
 module VagrantPlugins
   module FleetProvisioner
-    class RemoteClient
+    class Client
       def initialize(machine)
         @machine = machine
       end
 
+      def submit_units(units)
+        exec(:submit, units)
+      end
+
       def start_units(units)
+        exec(:start, units)
+      end
+
+      def stop_units(units)
+        exec(:stop, units)
+      end
+
+      def load_units(units)
+        exec(:load, units)
+      end
+
+      def unload_units(units)
+        exec(:unload, units)
+      end
+
+      def destroy_units(units)
+        exec(:destroy, units)
+      end
+
+      protected
+
+
+      def exec(command, units)
         @machine.communicate.tap do |comm|
           units.each do |unit, opts|
-            @machine.ui.info(I18n.t("vagrant.fleet_provisioner.fleet_start_unit", unit: unit))
-            comm.sudo("fleetctl start #{unit}") do |type, data|
+            @machine.ui.info(I18n.t("vagrant.provisioners.fleet.start_unit", unit: unit))
+            comm.execute("fleetctl #{command} #{unit}") do |type, data|
               handle_comm(type, data)
             end
           end
         end
       end
-
-protected
 
       # This handles outputting the communication data back to the UI
       def handle_comm(type, data)

@@ -20,8 +20,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Starts the service assuming service exists in local directory with given
     # name
-    fleet.submit "redis.service"
-    fleet.start "redis.service"
+    fleet.submit file: "./units/redis.1.service"
+    fleet.submit directory: "./units/shared"
+    fleet.submit "redis.3.service",
+      inline: <<-UNIT
+        [Unit]
+        Description=Redis
+
+        [Service]
+        TimeoutStartSec=10m
+        Environment=IMG=dockerfile/redis CNAME=redis-3
+        ExecStartPre=/bin/bash -c "/usr/bin/docker inspect $IMG &> /dev/null || /usr/bin/docker pull $IMG"
+        ExecStartPre=-/bin/bash -c "/usr/bin/docker rm $CNAME &> /dev/null"
+        ExecStart=/usr/bin/docker run --name $CNAME --rm $IMG
+        ExecStop=/usr/bin/docker stop $CNAME
+    UNIT
+    fleet.start "redis.3.service"
 
     # fleet.start "path/to/service/file.service"
 
