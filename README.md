@@ -6,6 +6,26 @@ Vagrant fleet provisioner for use with a CoreOS guest machine
 
 This is very early work.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Installation](#installation)
+  - [Pre-release Versions](#pre-release-versions)
+  - [Stable Versions](#stable-versions)
+- [Usage](#usage)
+  - [With a CoreOS vagrant box](#with-a-coreos-vagrant-box)
+  - [Submitting Units to fleet](#submitting-units-to-fleet)
+      - [Submitting a file](#submitting-a-file)
+      - [Submitting a directory](#submitting-a-directory)
+      - [Submitting an inline unit definition](#submitting-an-inline-unit-definition)
+    - [Starting and Stopping Services](#starting-and-stopping-services)
+    - [Loading and Unloading Services](#loading-and-unloading-services)
+    - [Destroying Services](#destroying-services)
+- [Contributing](#contributing)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Installation
 
 Installation is handled via Vagrant's standard plugin mechanisms.
@@ -144,8 +164,7 @@ config.vm.provision :fleet do |fleet|
 end
 ```
 
-##
-Contributing
+## Contributing
 
 1. Fork it ( https://github.com/voidlock/vagrant-fleet/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
