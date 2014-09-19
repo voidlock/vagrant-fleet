@@ -18,7 +18,7 @@ module VagrantPlugins
       end
 
       def configure(root_config)
-        @unit_folders = expanded_folders(@config.units[:shared])
+        @unit_folders = expanded_folders(config.shared_units)
 
         share_folders(root_config, "fsu", @unit_folders)
       end
@@ -34,20 +34,20 @@ module VagrantPlugins
         end
 
         chown_provisioning_folder()
-        copy_inline_units()
+        copy_file_units()
         verify_shared_folders(check)
         verify_binary(binary_path("fleetctl"))
 
-        @client.submit_units(expand_file_cache_path(@config.copied_units))
+        @client.submit_units(expand_file_cache_path(config.uploaded_units))
         @client.submit_units(expand_unit_folders(@unit_folders))
-        @config.actions.each do |action, units|
+        config.actions.each do |action, units|
           @client.send(:"#{action}_units", units)
         end
       end
 
       def chown_provisioning_folder
-        paths = [@config.provisioning_path,
-                 @config.file_cache_path]
+        paths = [config.provisioning_path,
+                 config.file_cache_path]
 
         @machine.communicate.tap do |comm|
           paths.each do |path|
@@ -57,17 +57,65 @@ module VagrantPlugins
         end
       end
 
-      def copy_inline_units()
-        @machine.communicate.tap do |comm|
-          @config.copied_units.each do |unit|
-            comm.execute("echo '#{unit[:unit]}' > #{@config.file_cache_path}/#{unit[:name]}")
+      def copy_file_units
+        with_file_units do |local_path, remote_path|
+          @machine.communicate.tap do |comm|
+            @logger.debug("Upload: #{local_path} to #{remote_path}")
+            comm.upload(local_path.to_s, remote_path)
+          end
+        end
+      end
+
+      def with_file_units
+        config.uploaded_units.each do |unit|
+          name = nil
+          spec = nil
+
+          case unit
+          when String
+            root_path = @machine.env.root_path
+            name = File.basename(unit)
+            spec = Pathname.new(unit).expand_path(root_path).read
+          when Hash
+            name = unit[:name]
+            spec = unit[:spec]
+          end
+
+          ext = File.extname(name)
+          remote_path = "#{config.file_cache_path}/#{name}"
+
+
+          # Replace Windows line endings with Unix ones unless binary file
+          # or we're running on Windows.
+          if !config.binary && @machine.config.vm.communicator != :winrm
+            spec.gsub!(/\r\n?$/, "\n")
+          end
+
+          # Otherwise we have an inline unit, we need to Tempfile it,
+          # and handle it specially...
+          file = Tempfile.new(['vagrant-shell', ext])
+
+          # Unless you set binmode, on a Windows host the unit
+          # will have CRLF line endings instead of LF line
+          # endings, causing havoc when the guest executes it.
+          # This fixes [GH-1181].
+          file.binmode
+
+          begin
+            file.write(spec)
+            file.fsync
+            file.close
+            yield file.path, remote_path
+          ensure
+            file.close
+            file.unlink
           end
         end
       end
 
       def binary_path(binary)
-        return binary if !@config.binary_path
-        return File.join(@config.binary_path, binary)
+        return binary if !config.binary_path
+        return File.join(config.binary_path, binary)
       end
 
       def verify_binary(binary)
@@ -83,7 +131,12 @@ module VagrantPlugins
       def expand_file_cache_path(units)
         results = []
         units.each do |unit|
-          results << "#{@config.file_cache_path}/#{unit[:name]}"
+          case unit
+          when String
+            results << "#{config.file_cache_path}/#{File.basename(unit)}"
+          when Hash
+            results << "#{config.file_cache_path}/#{unit[:name]}"
+          end
         end
         results
       end
@@ -116,7 +169,7 @@ module VagrantPlugins
 
           if File.exist?(local_path)
             # Path exists on the host, setup the remote path
-            remote_path = "#{@config.provisioning_path}/shared-units-#{get_and_update_counter(:units_path)}"
+            remote_path = "#{config.provisioning_path}/shared-units-#{get_and_update_counter(:units_path)}"
           else
             @machine.ui.warn(I18n.t("vagrant.provisioners.fleet.unit_folder_not_found_warning",
                                     path: local_path.to_s))
@@ -137,7 +190,7 @@ module VagrantPlugins
         folders.each do |local_path, remote_path|
           opts = {}
           opts[:id] = "v-#{prefix}-#{self.class.get_and_update_counter(:shared_folder)}"
-          opts[:type] = @config.synced_folder_type if @config.synced_folder_type
+          opts[:type] = config.synced_folder_type if config.synced_folder_type
 
           root_config.vm.synced_folder(local_path, remote_path, opts)
         end

@@ -31,7 +31,6 @@ module VagrantPlugins
 
       protected
 
-
       def exec(command, units)
         @machine.communicate.tap do |comm|
           units.each do |unit, opts|

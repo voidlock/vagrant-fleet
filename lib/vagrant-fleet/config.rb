@@ -2,33 +2,31 @@ module VagrantPlugins
   module FleetProvisioner
     class Config < Vagrant.plugin("2", :config)
       extend Vagrant::Util::Counter
+
       attr_accessor :binary_path
       attr_accessor :provisioning_path
       attr_accessor :file_cache_path
 
       def initialize
         @__actions = Hash.new { |h, k| h[k] = Set.new }
-        @__units = Hash.new { |h, k| h[k] = [] }
+        @__uploaded = []
+        @__shared = []
 
         @binary_path = UNSET_VALUE
         @provisioning_path = UNSET_VALUE
         @file_cache_path = UNSET_VALUE
       end
 
-      def units
-        @__units
-      end
-
       def actions
         @__actions
       end
 
-      def copied_units
-        @__units[:copied]
+      def uploaded_units
+        @__uploaded
       end
 
       def shared_units
-        @__units[:shared]
+        @__shared
       end
 
       def start(unit)
@@ -49,18 +47,17 @@ module VagrantPlugins
 
       def submit(name = nil, file: nil, inline: nil, directory: nil)
         if name && inline
-          @__units[:copied] << unit_from_spec(name, inline)
+          @__uploaded << unit_from_spec(name, inline)
         elsif file
-          @__units[:copied] << unit_from_file(file)
+          @__uploaded << file
         elsif directory
-          @__units[:shared] << directory
+          @__shared << directory
         end
       end
 
       def destroy(unit)
         @__actions[:destroy] << unit.to_s
       end
-
 
       def finalize!
         @binary_path = nil if @provisioning_path == UNSET_VALUE
@@ -81,10 +78,6 @@ module VagrantPlugins
 
       def unit_from_spec(name, spec)
         { name: name.to_s, unit: spec }
-      end
-
-      def unit_from_file(file)
-        unit_from_spec(File.basename(file), File.read(file))
       end
     end
   end
