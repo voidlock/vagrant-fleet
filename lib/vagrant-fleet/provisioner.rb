@@ -1,4 +1,4 @@
-require_relative "local_client"
+require_relative "client"
 
 module VagrantPlugins
   module FleetProvisioner
