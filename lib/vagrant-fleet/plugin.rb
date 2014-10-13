@@ -8,6 +8,15 @@ module VagrantPlugins
         A vagrant CoreOS Fleet provisioner plugin
       DESC
 
+      command("fleetctl-run", primary: false) do
+        require_relative "command/run"
+        Command::Run
+      end
+      command("fleetctl-shell", primary: false) do
+        require_relative "command/shell"
+        Command::Shell
+      end
+
       config(:fleet, :provisioner) do
         require_relative "config"
         Config
